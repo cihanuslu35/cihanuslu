@@ -8,8 +8,8 @@
   <p id="durum">İşlem yapılıyor...</p>
 
   <script>
-    const API_KEY = '69e87aa836566621a8dc018f';
-    const BIN_ID  = '69e8873b856a6821895d94cf';
+    const MASTER_KEY = '$2a$10$YOLU8g9onIHxClZVX2xWR.ipjfBUz.2Z2yuAUTlBkPbMmSmMWa966';
+    const BIN_ID     = '69e8873b856a6821895d94cf';
 
     const params = new URLSearchParams(window.location.search);
     const veri   = params.get('veri')  || '';
@@ -21,7 +21,7 @@
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'X-Master-Key': API_KEY
+        'X-Master-Key': MASTER_KEY
       },
       body: JSON.stringify(data)
     })

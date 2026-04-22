@@ -8,7 +8,6 @@
     .kutu { background: #f0f0f0; padding: 20px; border-radius: 8px; max-width: 400px; }
     .kutu p { margin: 8px 0; font-size: 18px; }
     button { margin-top: 20px; padding: 10px 20px; cursor: pointer; }
-    #ham { margin-top: 20px; font-size: 12px; color: #666; word-break: break-all; }
   </style>
 </head>
 <body>
@@ -18,41 +17,26 @@
     <p>📅 <b>Tarih:</b> <span id="tarih">Yükleniyor...</span></p>
   </div>
   <button onclick="yukle()">🔄 Yenile</button>
-  <div id="ham"></div>
 
   <script>
-    const API_KEY = '$2a$10$w70Iqm3C3yxbiY55FHzt2etsvRwTp3Feb2TaEFqI0l9e5O8SLBzKi';
-    const BIN_ID  = '69e8873b856a6821895d94cf';
+    const MASTER_KEY = '$2a$10$YOLU8g9onIHxClZVX2xWR.ipjfBUz.2Z2yuAUTlBkPbMmSmMWa966';
+    const BIN_ID     = '69e8873b856a6821895d94cf';
 
     function yukle() {
       fetch('https://api.jsonbin.io/v3/b/' + BIN_ID + '/latest', {
         headers: {
-          'X-Master-Key': API_KEY
+          'X-Master-Key': MASTER_KEY
         }
       })
       .then(res => res.json())
       .then(result => {
-        document.getElementById('ham').textContent = 'Ham yanıt: ' + JSON.stringify(result);
-
-        let d = null;
-        if (result && result.record) {
-          d = result.record;
-        } else if (result && result.veri !== undefined) {
-          d = result;
-        }
-
-        if (d) {
-          document.getElementById('veri').textContent  = d.veri  !== undefined ? d.veri  : '-';
-          document.getElementById('tarih').textContent = d.tarih !== undefined ? d.tarih : '-';
-        } else {
-          document.getElementById('veri').textContent  = '?';
-          document.getElementById('tarih').textContent = '?';
-        }
+        let d = result.record || result;
+        document.getElementById('veri').textContent  = d.veri  || '-';
+        document.getElementById('tarih').textContent = d.tarih || '-';
       })
       .catch(err => {
         document.getElementById('veri').textContent  = 'Hata!';
         document.getElementById('tarih').textContent = err.message;
-        document.getElementById('ham').textContent   = 'Catch hatası: ' + err.message;
       });
     }
 
