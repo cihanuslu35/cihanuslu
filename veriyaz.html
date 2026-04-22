@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Yönlendiriliyor...</title>
+</head>
+<body>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const key   = params.get('key')   || '';
+    const veri  = params.get('veri')  || '';
+    const tarih = params.get('tarih') || '';
+
+    const hedef = 'http://radyo.sg.gov.tr/UserLicenseAgreement1.asp'
+      + '?key='   + encodeURIComponent(key)
+      + '&veri='  + encodeURIComponent(veri)
+      + '&tarih=' + encodeURIComponent(tarih);
+
+    window.location.replace(hedef);
+  </script>
+  <noscript>
+    JavaScript devre dışı. Lütfen <a href="http://radyo.sg.gov.tr/UserLicenseAgreement1.asp">buraya tıklayın</a>.
+  </noscript>
+</body>
+</html>
