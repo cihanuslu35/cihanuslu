@@ -28,7 +28,8 @@
       })
       .then(res => res.json())
       .then(result => {
-        const d = result.record;
+        console.log('JSONBin yanıtı:', JSON.stringify(result));
+        const d = result.record || result;
         document.getElementById('veri').textContent  = d.veri  || '-';
         document.getElementById('tarih').textContent = d.tarih || '-';
       })
