@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Veri Yaz</title>
+</head>
+<body>
+<pre id="log">İşleniyor...</pre>
+
+<script>
+// ==== AYARLAR - kendi bilgilerinle değiştir ====
+const GITHUB_OWNER = "cihanuslu35";       // GitHub kullanıcı adın
+const GITHUB_REPO  = "cihanuslu";            // veri.txt'nin bulunduğu repo
+const FILE_PATH    = "veri.txt";             // repo içindeki dosya yolu
+const BRANCH       = "main";                 // branch adı (main / master)
+const TOKEN        = "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"; // fine-grained PAT, sadece bu repo'ya, sadece Contents:write
+// ================================================
+
+const params = new URLSearchParams(window.location.search);
+const isi    = params.get("isi");
+const tarih  = params.get("tarih");
+
+const log = document.getElementById("log");
+
+if (isi === null || tarih === null) {
+  log.textContent = "Hata: querystring eksik. Örnek kullanım:\nveriyaz.html?isi=25&tarih=11.09.2026";
+} else {
+  yaz();
+}
+
+async function yaz() {
+  const yeniIcerik = `isi=${isi}\ntarih=${tarih}\n`;
+  const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+
+  try {
+    // 1) Dosyanın mevcut sha'sını al (güncelleme için gerekli)
+    const getResp = await fetch(`${apiUrl}?ref=${BRANCH}`, {
+      headers: {
+        Authorization: `token ${TOKEN}`,
+        Accept: "application/vnd.github+json"
+      }
+    });
+
+    let sha = undefined;
+    if (getResp.ok) {
+      const getData = await getResp.json();
+      sha = getData.sha; // dosya zaten varsa
+    }
+    // getResp 404 dönerse dosya henüz yok demektir, sha olmadan yeni dosya oluşturulur
+
+    // 2) Dosyayı güncelle / oluştur
+    const body = {
+      message: `veri güncellendi: isi=${isi}, tarih=${tarih}`,
+      content: btoa(unescape(encodeURIComponent(yeniIcerik))),
+      branch: BRANCH
+    };
+    if (sha) body.sha = sha;
+
+    const putResp = await fetch(apiUrl, {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${TOKEN}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+
+    const putData = await putResp.json();
+
+    if (putResp.ok) {
+      log.textContent = "Yazıldı:\n" + yeniIcerik;
+    } else {
+      log.textContent = "Hata: " + (putData.message || JSON.stringify(putData));
+    }
+  } catch (err) {
+    log.textContent = "İstek hatası: " + err.message;
+  }
+}
+</script>
+</body>
+</html>
