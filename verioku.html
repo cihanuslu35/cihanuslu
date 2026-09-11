@@ -8,20 +8,28 @@
 <pre id="log">Yükleniyor...</pre>
 
 <script>
-// ==== AYARLAR - kendi bilgilerinle değiştir ====
-const BIN_ID  = "6aa3c80eac6210605abff9ea";       // veriyaz_jsonbin.html'de kullandığın aynı bin ID
-const API_KEY = "$2a$10$hz4mh1uHsae.9gMaNqP7p.IMKgukU4Us7CMx9ebEX8HwdRaMpUoYa";      // aynı hesabın X-Master-Key'i (veya sadece okuma yetkili bir Access Key)
-// ================================================
+// BIN_ID ve MASTER_KEY artık api_keys.json dosyasından okunuyor (aşağıda)
 
 const log = document.getElementById("log");
 oku();
 
 async function oku() {
+  let BIN_ID, MASTER_KEY;
+  try {
+    const keysResp = await fetch("./api_keys.json");
+    const keys = await keysResp.json();
+    BIN_ID = keys.BIN_ID;
+    MASTER_KEY = keys.MASTER_KEY;
+  } catch (err) {
+    log.textContent = "api_keys.json okunamadı: " + err.message;
+    return;
+  }
+
   const apiUrl = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 
   try {
     const resp = await fetch(apiUrl, {
-      headers: { "X-Master-Key": API_KEY }
+      headers: { "X-Master-Key": MASTER_KEY }
     });
 
     const data = await resp.json();
