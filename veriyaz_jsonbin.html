@@ -9,9 +9,8 @@
 
 <script>
 // ==== AYARLAR - kendi bilgilerinle değiştir ====
-const BIN_ID     = "6aa3c80eac6210605abff9ea";        // jsonbin.io'da oluşturacağın yeni bin'in ID'si
-const MASTER_KEY = "$2a$10$hz4mh1uHsae.9gMaNqP7p.IMKgukU4Us7CMx9ebEX8HwdRaMpUoYa";    // sıcaklık projesinde kullandığın JSONBin API key (X-Master-Key)
-const GUVENLIK_ANAHTARI = "saguvege"; // URL'deki &key=... ile eşleşmesi gereken kendi belirlediğin şifre
+const GUVENLIK_ANAHTARI = "KENDI_GIZLI_ANAHTARIN"; // URL'deki &key=... ile eşleşmesi gereken kendi belirlediğin şifre
+// BIN_ID ve MASTER_KEY artık api_keys.json dosyasından okunuyor (aşağıda)
 // ================================================
 
 const params = new URLSearchParams(window.location.search);
@@ -24,12 +23,23 @@ const log = document.getElementById("log");
 if (key !== GUVENLIK_ANAHTARI) {
   log.textContent = "Hata: geçersiz veya eksik key.";
 } else if (veriDeger === null || tarih === null) {
-  log.textContent = "Hata: querystring eksik. Örnek kullanım:\nveriyaz_jsonbin.html?veri=25&tarih=11.09.2026&key=...";
+  log.textContent = "Hata: querystring eksik. Örnek kullanım:\nveriyaz_jsonbin.html?veri=25&tarih=11.09.2026%2014:33&key=...";
 } else {
   yaz();
 }
 
 async function yaz() {
+  let BIN_ID, MASTER_KEY;
+  try {
+    const keysResp = await fetch("./api_keys.json");
+    const keys = await keysResp.json();
+    BIN_ID = keys.BIN_ID;
+    MASTER_KEY = keys.MASTER_KEY;
+  } catch (err) {
+    log.textContent = "api_keys.json okunamadı: " + err.message;
+    return;
+  }
+
   const gonderilecek = { veri: veriDeger, tarih: tarih };
   const apiUrl = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
