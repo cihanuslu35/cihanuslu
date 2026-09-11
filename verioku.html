@@ -36,7 +36,7 @@ async function oku() {
 
     if (resp.ok) {
       const kayit = data.record;
-      log.textContent = "veri=" + kayit.veri + "\ntarih=" + kayit.tarih;
+      log.textContent = "Sıcaklık=" + kayit.veri + "\nTarih=" + kayit.tarih;
     } else {
       log.textContent = "Hata: " + (data.message || JSON.stringify(data));
     }
