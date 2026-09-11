@@ -27,8 +27,8 @@ async function oku() {
     const data = await resp.json();
 
     if (resp.ok) {
-      const const_veri = data.record;
-      log.textContent = "veri=" + const_veri.veri + "\ntarih=" + const_veri.tarih;
+      const kayit = data.record;
+      log.textContent = "veri=" + kayit.veri + "\ntarih=" + kayit.tarih;
     } else {
       log.textContent = "Hata: " + (data.message || JSON.stringify(data));
     }
