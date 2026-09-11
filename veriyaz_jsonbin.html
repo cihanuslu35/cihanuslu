@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Veri Yaz</title>
+</head>
+<body>
+<pre id="log">İşleniyor...</pre>
+
+<script>
+// ==== AYARLAR - kendi bilgilerinle değiştir ====
+const BIN_ID     = "6aa3c80eac6210605abff9ea";        // jsonbin.io'da oluşturacağın yeni bin'in ID'si
+const MASTER_KEY = "$2a$10$hz4mh1uHsae.9gMaNqP7p.IMKgukU4Us7CMx9ebEX8HwdRaMpUoYa";    // sıcaklık projesinde kullandığın JSONBin API key (X-Master-Key)
+// ================================================
+
+const params = new URLSearchParams(window.location.search);
+const isi    = params.get("isi");
+const tarih  = params.get("tarih");
+
+const log = document.getElementById("log");
+
+if (isi === null || tarih === null) {
+  log.textContent = "Hata: querystring eksik. Örnek kullanım:\nveriyaz_jsonbin.html?isi=25&tarih=11.09.2026";
+} else {
+  yaz();
+}
+
+async function yaz() {
+  const veri = { isi: isi, tarih: tarih };
+  const apiUrl = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+  try {
+    const resp = await fetch(apiUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Master-Key": MASTER_KEY
+      },
+      body: JSON.stringify(veri)
+    });
+
+    const data = await resp.json();
+
+    if (resp.ok) {
+      log.textContent = "Yazıldı:\nisi=" + isi + "\ntarih=" + tarih;
+    } else {
+      log.textContent = "Hata: " + (data.message || JSON.stringify(data));
+    }
+  } catch (err) {
+    log.textContent = "İstek hatası: " + err.message;
+  }
+}
+</script>
+</body>
+</html>
