@@ -13,17 +13,20 @@ const GITHUB_OWNER = "cihanuslu35";       // GitHub kullanıcı adın
 const GITHUB_REPO  = "cihanuslu";            // veri.txt'nin bulunduğu repo
 const FILE_PATH    = "veri.txt";             // repo içindeki dosya yolu
 const BRANCH       = "main";                 // branch adı (main / master)
-const TOKEN        = "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"; // fine-grained PAT, sadece bu repo'ya, sadece Contents:write
+// TOKEN artık kodun içinde DEĞİL — querystring'den okunuyor, bu yüzden repoya commitlenmiyor
 // ================================================
 
 const params = new URLSearchParams(window.location.search);
 const isi    = params.get("isi");
 const tarih  = params.get("tarih");
+const TOKEN  = params.get("token"); // örn: ...&token=ghp_XXXXXXXXXXXXXXXX
 
 const log = document.getElementById("log");
 
 if (isi === null || tarih === null) {
-  log.textContent = "Hata: querystring eksik. Örnek kullanım:\nveriyaz.html?isi=25&tarih=11.09.2026";
+  log.textContent = "Hata: isi/tarih eksik. Örnek kullanım:\nveriyaz.html?isi=25&tarih=11.09.2026&token=ghp_...";
+} else if (TOKEN === null) {
+  log.textContent = "Hata: token eksik. URL'ye &token=ghp_... eklemen gerekiyor.";
 } else {
   yaz();
 }
