@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Veri Oku</title>
+</head>
+<body>
+<pre id="log">Yükleniyor...</pre>
+
+<script>
+// ==== AYARLAR - kendi bilgilerinle değiştir ====
+const BIN_ID  = "BIN_ID_BURAYA";       // veriyaz_jsonbin.html'de kullandığın aynı bin ID
+const API_KEY = "API_KEY_BURAYA";      // aynı hesabın X-Master-Key'i (veya sadece okuma yetkili bir Access Key)
+// ================================================
+
+const log = document.getElementById("log");
+oku();
+
+async function oku() {
+  const apiUrl = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
+
+  try {
+    const resp = await fetch(apiUrl, {
+      headers: { "X-Master-Key": API_KEY }
+    });
+
+    const data = await resp.json();
+
+    if (resp.ok) {
+      const veri = data.record;
+      log.textContent = "isi=" + veri.isi + "\ntarih=" + veri.tarih;
+    } else {
+      log.textContent = "Hata: " + (data.message || JSON.stringify(data));
+    }
+  } catch (err) {
+    log.textContent = "İstek hatası: " + err.message;
+  }
+}
+</script>
+</body>
+</html>
