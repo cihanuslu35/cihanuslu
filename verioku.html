@@ -2,18 +2,275 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Veri Oku</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sunucu Sıcaklık İzleme</title>
+<style>
+  :root{
+    --bg1:#0f172a;
+    --bg2:#1e293b;
+    --card:#111827cc;
+    --accent:#38bdf8;
+    --accent2:#f472b6;
+    --text:#e2e8f0;
+    --muted:#94a3b8;
+    --good:#34d399;
+    --warn:#fbbf24;
+    --bad:#f87171;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Segoe UI',Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(circle at 20% 20%, #1e3a5f33, transparent 40%),
+      radial-gradient(circle at 80% 80%, #7c3aed22, transparent 40%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    color:var(--text);
+    padding:24px;
+  }
+  .card{
+    width:100%;
+    max-width:420px;
+    background:var(--card);
+    backdrop-filter:blur(16px);
+    border:1px solid #ffffff14;
+    border-radius:24px;
+    padding:32px 28px;
+    box-shadow:0 20px 60px -20px #000000aa, inset 0 1px 0 #ffffff10;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:-60%;
+    left:-20%;
+    width:140%;
+    height:140%;
+    background:conic-gradient(from 0deg, var(--accent)22, transparent 30%, var(--accent2)22, transparent 60%);
+    animation:spin 12s linear infinite;
+    opacity:.5;
+    z-index:0;
+  }
+  .inner{position:relative;z-index:1;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:24px;
+  }
+  .title{
+    font-size:14px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+  .status-dot{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--muted);
+    box-shadow:0 0 0 4px #ffffff08;
+    transition:background .3s;
+  }
+  .status-dot.live{background:var(--good);box-shadow:0 0 0 4px #34d39933;}
+  .status-dot.error{background:var(--bad);box-shadow:0 0 0 4px #f8717133;}
+
+  .temp-wrap{
+    display:flex;
+    align-items:baseline;
+    justify-content:center;
+    gap:4px;
+    margin:18px 0 8px;
+  }
+  .temp-value{
+    font-size:68px;
+    font-weight:700;
+    letter-spacing:-2px;
+    background:linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    line-height:1;
+  }
+  .temp-unit{
+    font-size:28px;
+    font-weight:600;
+    color:var(--muted);
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:28px;
+  }
+
+  .divider{
+    height:1px;
+    background:linear-gradient(90deg, transparent, #ffffff22, transparent);
+    margin:20px 0;
+  }
+
+  .meta{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .meta-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:14px;
+  }
+  .meta-label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--muted);
+  }
+  .meta-label svg{width:16px;height:16px;opacity:.8;}
+  .meta-value{
+    font-weight:600;
+    color:var(--text);
+  }
+
+  .refresh-btn{
+    margin-top:26px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:14px;
+    background:linear-gradient(135deg, var(--accent), #6366f1);
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform .15s, box-shadow .15s;
+    box-shadow:0 8px 20px -6px #38bdf866;
+  }
+  .refresh-btn:hover{transform:translateY(-1px);}
+  .refresh-btn:active{transform:translateY(0px) scale(.98);}
+  .refresh-btn:disabled{opacity:.6;cursor:default;transform:none;}
+
+  .error-box{
+    margin-top:18px;
+    padding:12px 14px;
+    border-radius:12px;
+    background:#f8717118;
+    border:1px solid #f8717140;
+    color:#fca5a5;
+    font-size:13px;
+    line-height:1.5;
+    word-break:break-word;
+  }
+
+  .skeleton{
+    display:inline-block;
+    width:120px;
+    height:60px;
+    border-radius:10px;
+    background:linear-gradient(90deg, #ffffff10 25%, #ffffff22 37%, #ffffff10 63%);
+    background-size:400% 100%;
+    animation:shimmer 1.4s ease infinite;
+  }
+  @keyframes shimmer{
+    0%{background-position:100% 0;}
+    100%{background-position:0 0;}
+  }
+</style>
 </head>
 <body>
-<pre id="log">Yükleniyor...</pre>
-<h2>
-<script>
-// BIN_ID ve MASTER_KEY artık api_keys.json dosyasından okunuyor (aşağıda)
 
-const log = document.getElementById("log");
+<div class="card">
+  <div class="inner">
+    <div class="header">
+      <span class="title">Sunucu Sıcaklık</span>
+      <span id="statusDot" class="status-dot"></span>
+    </div>
+
+    <div id="tempSection">
+      <div class="temp-wrap">
+        <span class="skeleton" id="tempSkeleton"></span>
+      </div>
+    </div>
+
+    <div class="subtitle" id="subtitle">Veri alınıyor...</div>
+
+    <div class="divider"></div>
+
+    <div class="meta">
+      <div class="meta-row">
+        <span class="meta-label">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          Ölçüm Tarihi
+        </span>
+        <span class="meta-value" id="tarihVal">—</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Son Kontrol
+        </span>
+        <span class="meta-value" id="checkVal">—</span>
+      </div>
+    </div>
+
+    <button class="refresh-btn" id="refreshBtn" onclick="oku()">Yenile</button>
+
+    <div id="errorBox" style="display:none;" class="error-box"></div>
+  </div>
+</div>
+
+<script>
+const statusDot = document.getElementById("statusDot");
+const tempSection = document.getElementById("tempSection");
+const subtitle = document.getElementById("subtitle");
+const tarihVal = document.getElementById("tarihVal");
+const checkVal = document.getElementById("checkVal");
+const refreshBtn = document.getElementById("refreshBtn");
+const errorBox = document.getElementById("errorBox");
+
 oku();
 
+function setLoading(){
+  statusDot.className = "status-dot";
+  refreshBtn.disabled = true;
+  refreshBtn.textContent = "Yükleniyor...";
+  errorBox.style.display = "none";
+  tempSection.innerHTML = '<div class="temp-wrap"><span class="skeleton"></span></div>';
+  subtitle.textContent = "Veri alınıyor...";
+}
+
+function showError(msg){
+  statusDot.className = "status-dot error";
+  subtitle.textContent = "Bağlantı hatası";
+  tempSection.innerHTML = '<div class="temp-wrap"><span class="temp-value" style="font-size:40px;">--</span></div>';
+  errorBox.style.display = "block";
+  errorBox.textContent = msg;
+  refreshBtn.disabled = false;
+  refreshBtn.textContent = "Tekrar Dene";
+}
+
+function showData(sicaklik, tarih){
+  statusDot.className = "status-dot live";
+  subtitle.textContent = "Canlı veri";
+  const num = parseFloat(String(sicaklik).replace(",", "."));
+  const displayVal = isNaN(num) ? sicaklik : num.toFixed(1);
+  tempSection.innerHTML =
+    '<div class="temp-wrap"><span class="temp-value">' + displayVal + '</span><span class="temp-unit">°C</span></div>';
+  tarihVal.textContent = tarih || "—";
+  checkVal.textContent = new Date().toLocaleTimeString('tr-TR');
+  errorBox.style.display = "none";
+  refreshBtn.disabled = false;
+  refreshBtn.textContent = "Yenile";
+}
+
 async function oku() {
+  setLoading();
+
   let BIN_ID, MASTER_KEY;
   try {
     const keysResp = await fetch("./api_keys.json");
@@ -21,7 +278,7 @@ async function oku() {
     BIN_ID = keys.BIN_ID;
     MASTER_KEY = keys.MASTER_KEY;
   } catch (err) {
-    log.textContent = "api_keys.json okunamadı: " + err.message;
+    showError("api_keys.json okunamadı: " + err.message);
     return;
   }
 
@@ -36,15 +293,15 @@ async function oku() {
 
     if (resp.ok) {
       const kayit = data.record;
-      log.textContent = "Sıcaklık=" + kayit.veri + "\nTarih=" + kayit.tarih;
+      showData(kayit.veri, kayit.tarih);
     } else {
-      log.textContent = "Hata: " + (data.message || JSON.stringify(data));
+      showError("Hata: " + (data.message || JSON.stringify(data)));
     }
   } catch (err) {
-    log.textContent = "İstek hatası: " + err.message;
+    showError("İstek hatası: " + err.message);
   }
 }
 </script>
-  </h2>
+
 </body>
 </html>
