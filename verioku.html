@@ -211,8 +211,6 @@
       </div>
     </div>
 
-      <button class="refresh-btn" id="refreshBtn" onclick="oku()">Yenile</button>
-
     <div id="errorBox" style="display:none;" class="error-box"></div>
   </div>
 </div>
@@ -222,15 +220,12 @@ const statusDot = document.getElementById("statusDot");
 const tempSection = document.getElementById("tempSection");
 const subtitle = document.getElementById("subtitle");
 const tarihVal = document.getElementById("tarihVal");
-const refreshBtn = document.getElementById("refreshBtn");
 const errorBox = document.getElementById("errorBox");
 
 oku();
 
 function setLoading(){
   statusDot.className = "status-dot";
-  refreshBtn.disabled = true;
-  refreshBtn.textContent = "Yükleniyor...";
   errorBox.style.display = "none";
   tempSection.innerHTML = '<div class="temp-wrap"><span class="skeleton"></span></div>';
   subtitle.textContent = "Veri alınıyor...";
@@ -242,8 +237,6 @@ function showError(msg){
   tempSection.innerHTML = '<div class="temp-wrap"><span class="temp-value" style="font-size:40px;">--</span></div>';
   errorBox.style.display = "block";
   errorBox.textContent = msg;
-  refreshBtn.disabled = false;
-  refreshBtn.textContent = "Tekrar Dene";
 }
 
 function showData(sicaklik, tarih){
@@ -255,8 +248,6 @@ function showData(sicaklik, tarih){
     '<div class="temp-wrap"><span class="temp-value">' + displayVal + '</span><span class="temp-unit">°C</span></div>';
   tarihVal.textContent = tarih || "—";
   errorBox.style.display = "none";
-  refreshBtn.disabled = false;
-  refreshBtn.textContent = "Yenile";
 }
 
 async function oku() {
