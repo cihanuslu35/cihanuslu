@@ -1,0 +1,5 @@
+API request bitince , yeni mail ile hesap açılıp ,
+Create BIN ile yeni bin id oluştur
+X-Master-KEY zaten var.
+ikisini burdaki api_keys.json dosyasında güncelle.
+Bu kadar!
